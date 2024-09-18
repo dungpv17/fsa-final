@@ -1,11 +1,7 @@
 import * as React from "react";
 
 import { AuthLoader, useUser } from "./auth";
-
-export enum ROLES {
-  ADMIN = "ADMIN",
-  USER = "USER",
-}
+import { ROLES } from "@/utils/enums";
 
 type RoleTypes = keyof typeof ROLES;
 

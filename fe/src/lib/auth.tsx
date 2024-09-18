@@ -3,20 +3,20 @@ import { Navigate, useLocation } from "react-router-dom";
 import { z } from "zod";
 
 import { AuthResponse, User } from "@/types/api";
-
-import { api } from "./api-client";
+import { ENDPOINT_API } from "@/utils/enums";
+import { LoginInput, RegisterInput } from "@/types/auth.types";
+import { AuthService } from "@/services/auth.service";
 
 // api call definitions for auth (types, schemas, requests):
 // these are not part of features as this is a module shared across features
 
 const getUser = async (): Promise<User> => {
-  const response = await api.get("/auth/me");
-
+  const response = await AuthService.getUser();
   return response.data;
 };
 
-const logout = (): Promise<void> => {
-  return api.post("/auth/logout");
+const logout = () => {
+  return AuthService.logout();
 };
 
 export const loginInputSchema = z.object({
@@ -24,9 +24,8 @@ export const loginInputSchema = z.object({
   password: z.string().min(5, "Required"),
 });
 
-export type LoginInput = z.infer<typeof loginInputSchema>;
 const loginWithEmailAndPassword = (data: LoginInput): Promise<AuthResponse> => {
-  return api.post("/auth/login", data);
+  return AuthService.login(data);
 };
 
 export const registerInputSchema = z
@@ -50,12 +49,10 @@ export const registerInputSchema = z
       )
   );
 
-export type RegisterInput = z.infer<typeof registerInputSchema>;
-
 const registerWithEmailAndPassword = (
   data: RegisterInput
 ): Promise<AuthResponse> => {
-  return api.post("/auth/register", data);
+  return AuthService.register(data);
 };
 
 const authConfig = {
@@ -81,7 +78,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (!user.data) {
     return (
       <Navigate
-        to={`/auth/login?redirectTo=${encodeURIComponent(location.pathname)}`}
+        to={`${ENDPOINT_API.LOGIN}?redirectTo=${encodeURIComponent(location.pathname)}`}
         replace
       />
     );
